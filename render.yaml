@@ -1,0 +1,35 @@
+services:
+  # 1. FastAPI Cyber AI Backend Web Service
+  - type: web
+    name: cyber-ai-backend
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: "cd backend && pip install -r requirements.txt"
+    startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      - key: ENVIRONMENT
+        value: demo
+      - key: APP_NAME
+        value: "Sentinel AI Cyber Defense"
+      - key: DATABASE_URL
+        value: "sqlite+aiosqlite:///./sentinel.db"
+
+  # 2. Next.js Cyber AI Frontend Web Service
+  - type: web
+    name: cyber-ai-frontend
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: "cd frontend && npm install && npm run build"
+    startCommand: "cd frontend && npm start"
+    envVars:
+      - key: NODE_VERSION
+        value: 18.20.0
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: cyber-ai-backend
+          property: host
